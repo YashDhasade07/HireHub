@@ -1,29 +1,24 @@
-import { jobs } from "./jobs.model.js";
+import applicantSchema from "../schema/applicant.schema.js";
+import jobSchema from "../schema/jobs.schema.js";
+import mongoose from "mongoose";
+let JobModel = mongoose.model('job', jobSchema)
+let Model = mongoose.model("applicant", applicantSchema)
 
-export default class ApplicantModel{
-    constructor(id,name,email,contact,resumePath){
-        this.id = id,
-        this.name = name,
-        this.email = email,
-        this.contact = contact,
-        this.resumePath = resumePath
-    }
+export default class ApplicantModel {
 
-    static addApplicant(name,email,cotact,filePath,id){
-        let applicant = new ApplicantModel(
-            applicants.length+1,name,email,cotact,filePath
-        )
-        applicants.push(applicant);
-        // console.log(applicant);
+    async addApplicant(name, email, contact, filePath, id) {
+        try {
+            
+            let applicant = new Model({ name: name, email: email, contact: contact, resumePath: filePath })
+            const savedApplicant = await applicant.save();
+            await JobModel.findByIdAndUpdate(
+                id,
+                { $push: { applicants: savedApplicant } },
+                { new: true }
+            );
+        } catch (error) {
+            console.log(error);
+        }
 
-        jobs.forEach((job)=>{
-            if(job.id==id){
-                job.applicants.push(applicant)
-            }
-        })
-
-        // console.log(jobs);
     }
 }
-
-let applicants=[];

@@ -6,6 +6,7 @@ import {
 
 import JobModel from '../models/jobs.model.js';
 
+
 const validateRequest = async (
     req,
     res,
@@ -30,21 +31,21 @@ const validateRequest = async (
         rules.map((rule) => rule.run(req))
     );
 
-
+    const jobRepository = new JobModel();
     // 3. check if there are any errors after running the rules.
     var validationErrors = validationResult(req);
     console.log(validationErrors);
     let id = req.params.id;
-    const job = JobModel.getJobById(id);
+    const job = await jobRepository.getJobById(id);
     // 4. if errros, return the error message
     if (!validationErrors.isEmpty()) {
         if (job) {
             return res.render('jobDetails', {
                 job: job,
                 errorMessage:
-                validationErrors.array()[0].msg
+                    validationErrors.array()[0].msg
             });
-            
+
         }
     }
     next();

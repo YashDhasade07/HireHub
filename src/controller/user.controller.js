@@ -1,19 +1,27 @@
 import UserModel from "../models/user.model.js";
 import JobModel from "../models/jobs.model.js";
 
+
 export default class UserController{
+    
+    constructor(){
+        this.userRepository = new UserModel();
+        this.jobRepository = new JobModel();
+    }
     // Renders Landing page
     getPage(req,res){
         res.render('landingPage')
     }
 
     // Post registration details
-    setRegister(req,res,next){
-        let user = req.body;
-        // console.log(user);
-        UserModel.addUser(user);
-        
-        next();
+   async setRegister(req,res,next){
+       try {    
+            let user = req.body;
+            await this.userRepository.addUser(user)
+            next();
+        } catch (error) {
+            console.log(error);
+        }
     }
     // renders login page
     getLogin(req,res){
@@ -21,16 +29,20 @@ export default class UserController{
     }
 
     // posts login details
-    setLogin(req,res){
+   async setLogin(req,res){
         let user = req.body;
         let email = user.email;
-        let isValid = UserModel.checkUser(user);
+        let isValid = this.userRepository.checkUser(user);
         if(isValid){
             req.session.userEmail = email;
-            let jobs = JobModel.get();
+            let jobs = await this.jobRepository.get();
             res.render('jobs',{jobs})
         }else{
             res.send('Wrong Credintiails') 
+        }
+        try {    
+        } catch (error) {
+            console.log(error);
         }
     }
 

@@ -1,27 +1,23 @@
+import mongoose from "mongoose";
+import userSchema from "../schema/user.schema.js";
+const Model = mongoose.model('user', userSchema)
+export default class UserModel {
 
-
-export default class UserModel{
-    constructor(id,name,email,password){
-        this.id = id,
-        this.name = name,
-        this.email = email,
-        this.password = password
+    async addUser(user) {
+        try {
+            let newUser = new Model({ name: user.name, email: user.email, password: user.password });
+            let savedUser = await newUser.save()
+        } catch (error) {
+            console.log(error);
+        }
     }
 
-    static get(){
-        return users;
-    }
-
-    static addUser(user){
-        let newUser = new UserModel(users.length+1,user.name,user.email,user.password);
-        // console.log(newUser);
-        users.push(newUser);
-    }
-
-    static checkUser(user){
-      const result =  users.find((u)=>u.email==user.email && u.password ==user.password);
-      return result;
+    async checkUser(user) {
+        try {    
+            const isUser= await Model.findOne({email: user.email, password: user.password})
+            return isUser;
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
-
-let users=[];

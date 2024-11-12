@@ -21,13 +21,13 @@ const jobValidate = async (req, res, next) => {
 
     // Run the validation rules
     await Promise.all(rules.map((rule) => rule.run(req)));
-
+    const jobRepository = new JobModel();
     // Check for validation errors
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
         if (req.params.id) {
             const jobId = req.params.id;
-            let job = JobModel.getJobById(jobId);
+            let job = jobRepository.getJobById(jobId);
             return res.render('updateJobForm', {
                 job: job,
                 errorMessage: validationErrors.array()[0].msg,

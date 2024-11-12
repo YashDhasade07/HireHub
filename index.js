@@ -13,11 +13,12 @@ import { auth2 } from './src/middlewares/auth.middleware.js';
 import cookieParser from 'cookie-parser';
 import { setLastVisit } from './src/middlewares/lastVisit.middleware.js';
 import jobValidate from './src/middlewares/jobValidation.middleWare.js';
+import { connectUsingMongoose } from './src/config/mongoose.js';
 
 // instances of controller classes
-const userController = new UserController;
-const jobsController = new JobsController;
-const applicantController = new ApplicantController;
+const userController = new UserController();
+const jobsController = new JobsController();
+const applicantController = new ApplicantController();
 let app = express();
 app.use(cookieParser());
 app.use(setLastVisit)
@@ -38,27 +39,25 @@ app.set('views', path.join(path.resolve(), 'src', 'views'));
 // app.use(express.static(path.join(path.resolve(), 'src', 'views')));
 
 app.use(express.static('public'));
-app.get('/', auth2, userController.getPage);
-app.post('/register', userController.setRegister, userController.getLogin);
-app.post('/login', userController.setLogin);
-app.get('/postjob',auth, jobsController.getJobForm);
-app.post('/job',jobValidate, jobsController.setJobForm);
-app.get('/job/:id', jobsController.getJobDetails);
-// "/apply/<%= job.id %>"
-app.post('/apply/:id', uploadFile.single('resume'), validateRequest, confirmEmail, jobsController.setApplicant);
-app.get('/jobs', jobsController.getJob)
-app.get('/job/update/:id',auth, jobsController.getUpdateForm);
-app.post('/update/:id',auth,jobValidate, jobsController.setUpdateForm);
-app.get('/job/delete/:id',auth, jobsController.removeJob);
-app.get('/job/applicants/:id',auth, applicantController.getApplicantList);
-app.get('/getjobs', jobsController.getJob)
-app.get('/logout', userController.logout)
-app.get('/search',jobsController.searchJobs)
 
-
-
+app.get('/', auth2, userController.getPage.bind(userController));
+app.post('/register', userController.setRegister.bind(userController), userController.getLogin.bind(userController));
+app.post('/login', userController.setLogin.bind(userController));
+app.get('/postjob', auth, jobsController.getJobForm.bind(jobsController));
+app.post('/job', jobValidate, jobsController.setJobForm.bind(jobsController));
+app.get('/job/:id', jobsController.getJobDetails.bind(jobsController));
+app.post('/apply/:id', uploadFile.single('resume'), validateRequest, confirmEmail, jobsController.setApplicant.bind(jobsController));
+app.get('/jobs', jobsController.getJob.bind(jobsController));
+app.get('/job/update/:id', auth, jobsController.getUpdateForm.bind(jobsController));
+app.post('/update/:id', auth, jobValidate, jobsController.setUpdateForm.bind(jobsController));
+app.get('/job/delete/:id', auth, jobsController.removeJob.bind(jobsController));
+app.get('/job/applicants/:id', auth, applicantController.getApplicantList.bind(applicantController));
+app.get('/getjobs', jobsController.getJob.bind(jobsController));
+app.get('/logout', userController.logout.bind(userController));
+app.get('/search', jobsController.searchJobs.bind(jobsController));
 
 
 app.listen(3200, () => {
   console.log('Server is running on port 3200');
+  connectUsingMongoose()
 });
